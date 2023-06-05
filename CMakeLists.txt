@@ -1,12 +1,10 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.5)
-PROJECT(flextop_features)
+PROJECT(flextop_fast_distance)
+
+SET(LIB_TARGET flextopFD)
 
 # We need to know where libtorch is installed so we can access the headers and libraries.
-SET(LIBTORCH_DIR "/usr/local" CACHE PATH "Where LIBTORCH is installed")
-INCLUDE_DIRECTORIES("${LIBTORCH_DIR}/include")
-#SET(CMAKE_PREFIX_PATH "${PYTORCH_DIR}")
 FIND_PACKAGE(Torch REQUIRED)
-LINK_DIRECTORIES("${LIBTORCH_DIR}/lib")
 
 # Specify the C++ version we are building for.
 SET (CMAKE_CXX_STANDARD 14)
@@ -18,8 +16,13 @@ IF(APPLE)
 ENDIF(APPLE)
 
 # Collect up source files
-FILE(GLOB src_files  ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp)
-INCLUDE_DIRECTORIES(BEFORE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+FILE(GLOB src_files  ${CMAKE_CURRENT_SOURCE_DIR}/src/*)
+FILE(GLOB incl_files  ${CMAKE_CURRENT_SOURCE_DIR}/include/*.h)
+ADD_LIBRARY(${LIB_TARGET} SHARED ${src_files} ${incl_files})
 
-ADD_EXECUTABLE(flextopFF $src_files)
+TARGET_INCLUDE_DIRECTORIES(${LIB_TARGET} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+TARGET_INCLUDE_DIRECTORIES(${LIB_TARGET} PUBLIC ${TORCH_INCLUDE_DIRS})
 
+TARGET_LINK_LIBRARIES(${LIB_TARGET} "${TORCH_LIBRARIES}")
+
+INSTALL(TARGETS ${LIB_TARGET} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/plugins)

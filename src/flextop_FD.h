@@ -1,9 +1,9 @@
 #ifndef FLEXTOP_FD_H_
 #define FLEXTOP_FD_H_
 
-#include "PyTorchKernels.h"
 #include "Hungarian.h"
 #include <torch/torch.h>
+#include <torch/script.h>
 #include <vector>
 #include <string>
 #include <cstring>
@@ -27,18 +27,15 @@ namespace Flextop {
     };
     ~FlexTopFastDistance();
 
-    double get_target_distance(std::vector<std::vector<double>> positions,
-			       std::vector<std::vector<double>> attr);
+    std::vector<int> get_target_distance(torch::Tensor positions,
+					 torch::Tensor attr);
 
-    void set_target(std::vector<std::vector<double>> positions,
-		    std::vector<std::vector<double>> attr);
+    void set_target(torch::Tensor positions,
+		    torch::Tensor attr);
 
   private:
     torch::Tensor targetFeaturesTensor;
-    std::vector<std::vector<double> > targetFeatures;
     HungarianAlgorithm hungAlg;
-    std::vector<int> assignment;
-    std::vector<int> reverse_assignment;
   };
 
 } // namespace Flextop
