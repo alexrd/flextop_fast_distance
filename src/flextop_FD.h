@@ -23,6 +23,8 @@ namespace Flextop {
   public:
     FlexTopFastDistance(std::string model_name, double penalty) {
       nnModule = torch::jit::load(model_name);
+      nnModule.to(torch::kCPU);
+      nnModule.eval();
       lambda_mismatch_penalty = penalty;
     };
     ~FlexTopFastDistance();

@@ -85,6 +85,7 @@ void FlexTopFastDistance::set_target(torch::Tensor positions, torch::Tensor attr
 
   targetFeaturesTensor = getFeatures(positions,attr);
   
+  return;
 }
 
 
