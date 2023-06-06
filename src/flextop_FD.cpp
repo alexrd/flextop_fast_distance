@@ -83,7 +83,9 @@ void FlexTopFastDistance::set_target(torch::Tensor positions, torch::Tensor attr
   assert(pos_sizes[1]==3);  // x,y,z
   assert(attr_sizes[1]==4); // charge,epsilon,sigma,lambda
 
-  targetFeaturesTensor = getFeatures(positions,attr);
+  torch::Tensor ani_features = getFeatures(positions,attr);
+
+  targetFeaturesTensor = torch::cat({ani_features, attr},1);
   
   return;
 }
