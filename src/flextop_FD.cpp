@@ -57,10 +57,17 @@ std::vector<int> FlexTopFastDistance::get_target_distance(torch::Tensor position
   torch::Tensor ghFeaturesTensor = torch::cat({features, attr}, 1);
   torch::Tensor distMatTensor = at::norm(ghFeaturesTensor.index({Slice(), None})
 					 - targetFeaturesTensor, 2, 2);
-  
+
+  // make matrix square by padding with mismatch penalty
+  int dim0Size = distMatTensor.sizes()[0];
+  int dim1Size = distMatTensor.sizes()[1];
+  distMatTensor = torch::constant_pad_nd(distMatTensor, {0, max(dim0Size-dim1Size, 0), 
+							0, max(dim1Size-dim0Size, 0)}, 
+					Flextop::lambda_mismatch_penalty);
+
   std::vector<std::vector<double> > distMatrix = tensorTo2DVec(distMatTensor.data_ptr<double>(),
-							       numGhostParticles,
-							       static_cast<int>(targetFeaturesTensor.size(0)));
+							       distMatTensor.sizes()[0],
+							       distMatTensor.sizes()[1]);
 
   std::vector<int> assignment = hungAlg.Solve(distMatrix);
   
