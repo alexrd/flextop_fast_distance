@@ -2,6 +2,7 @@
 #define FLEXTOP_FD_H_
 
 #include "Hungarian.h"
+#include "sinkhorn_knopp.h"
 #include <torch/torch.h>
 #include <torch/script.h>
 #include <vector>
@@ -29,8 +30,8 @@ namespace Flextop {
     };
     ~FlexTopFastDistance();
 
-    std::vector<int> get_target_distance(torch::Tensor positions,
-					 torch::Tensor attr);
+    double get_target_distance(torch::Tensor positions,
+					 torch::Tensor attr, string algorithm="hungarian");
 
     void set_target(torch::Tensor positions,
 		    torch::Tensor attr);
@@ -38,6 +39,8 @@ namespace Flextop {
   private:
     torch::Tensor targetFeaturesTensor;
     HungarianAlgorithm hungAlg;
+    SKAlgorithm SKAlg;
+
   };
 
 } // namespace Flextop

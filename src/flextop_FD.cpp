@@ -1,8 +1,10 @@
 #include "flextop_FD.h"
 #include "Hungarian.h"
+#include "sinkhorn_knopp.h"
 #include "assert.h"
 #include <torch/script.h>
 #include <ATen/ATen.h>
+#include <string>
 
 using namespace Flextop;
 using namespace std;
@@ -38,8 +40,8 @@ FlexTopFastDistance::~FlexTopFastDistance() {
 }
 
 
-std::vector<int> FlexTopFastDistance::get_target_distance(torch::Tensor positions,
-				     torch::Tensor attr) {
+double FlexTopFastDistance::get_target_distance(torch::Tensor positions,
+				     torch::Tensor attr, string algorithm) {
 
   // ensure that positions and attr have the same size (the number of particles)
   at::IntArrayRef pos_sizes = positions.sizes();
@@ -69,12 +71,21 @@ std::vector<int> FlexTopFastDistance::get_target_distance(torch::Tensor position
 							       distMatTensor.sizes()[0],
 							       distMatTensor.sizes()[1]);
 
-  std::vector<int> assignment = hungAlg.Solve(distMatrix);
+  double distance;
+  if (algorithm == "hungarian") {
+    auto assignment = hungAlg.Solve(distMatrix);
+    distance = 0;
+    for (int i = 0; i < assignment.size(); i++) {
+      distance += distMatrix[i][assignment[i]];
+    }
+  }
+  else if (algorithm == "sinkhorn-knopp") {distance = SKAlg.Solve(distMatTensor);}
+  else {throw std::invalid_argument("algorithm must be either \"hungarian\" or \"sinkhorn-knopp\"");}
   
   // get L2 norm from target
   
   // return
-  return assignment;
+  return distance;
   
 }
 

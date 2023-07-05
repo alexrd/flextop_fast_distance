@@ -3,8 +3,10 @@
 #include "flextop_FD.h"
 #include <stdio.h>
 #include <string>
+#include <chrono>
 
 using namespace Flextop;
+using namespace std::chrono;
 
 int main(int argc, char* argv[]) {
 
@@ -28,10 +30,19 @@ int main(int argc, char* argv[]) {
   // Set the target features
   fftd.set_target(x1, a1); 
 
-  std::vector<int> assignments = fftd.get_target_distance(x2,a2);
+  auto start = high_resolution_clock::now();
+  double distance = fftd.get_target_distance(x2,a2,"hungarian");
+  auto lap = high_resolution_clock::now();
+  double distance2 = fftd.get_target_distance(x2,a2,"sinkhorn-knopp");
+  auto stop = high_resolution_clock::now();
+
+  //get times
+  int h_time = duration_cast<microseconds>(lap - start).count();
+  int sk_time = duration_cast<microseconds>(stop - lap).count();
 
   // Print the result
-  std::cout << "Assignments: " << assignments << std::endl;
+  std::cout << "Hungarian: " << distance << " Time: " << h_time << "\u03BCs" << std::endl;
+  std::cout << "Sinkhorn-Knopp: " << distance2 << " Time: " << sk_time << "\u03BCs" << std::endl;
 
   return 0;
 }
