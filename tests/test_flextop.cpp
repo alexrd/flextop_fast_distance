@@ -5,6 +5,7 @@
 #include <string>
 
 using namespace Flextop;
+using namespace std::chrono;
 
 int main(int argc, char* argv[]) {
 
@@ -27,11 +28,14 @@ int main(int argc, char* argv[]) {
 
   // Set the target features
   fftd.set_target(x1, a1); 
+  auto distMatrix = fftd.get_dist_matrix(x2,a2);
 
-  std::vector<int> assignments = fftd.get_target_distance(x2,a2);
+  double distance = fftd.get_target_distance(distMatrix,"hungarian");
+  double distance2 = fftd.get_target_distance(distMatrix,"sinkhorn-knopp");
 
   // Print the result
-  std::cout << "Assignments: " << assignments << std::endl;
+  std::cout << "Hungarian: " << distance << std::endl;
+  std::cout << "Sinkhorn-Knopp: " << distance2 << std::endl;
 
   return 0;
 }
